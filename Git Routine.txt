@@ -1,0 +1,2 @@
+Changes -> Unstaged makieren -> Stage drücken -> Unten Commit machen
+Oben Push betätigen
