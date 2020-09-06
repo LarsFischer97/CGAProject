@@ -2,6 +2,7 @@ package cga.exercise.components.geometry
 
 import org.joml.Matrix4f
 import org.joml.Vector3f
+import javax.swing.text.Position
 
 open class Transformable(var parent: Transformable? = null): ITransformable {
     var matrix = Matrix4f()
@@ -41,6 +42,7 @@ open class Transformable(var parent: Transformable? = null): ITransformable {
     override fun getPosition(): Vector3f {
         return Vector3f(matrix.m30(),matrix.m31(),matrix.m32())
     }
+
 
     open fun getDirection(): Double{
         return directiongrad

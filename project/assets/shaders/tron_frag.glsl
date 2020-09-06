@@ -84,4 +84,5 @@ void main(){
     result += shade(n, sp, v, diffCol, specularCol, shininess) * spotLightIntensity(cycleSpotLightCol, spLength, sp, cycleSpotLightDir);
 
     color = vec4(result, 1.0);
+	//color = vec4(0.5,0.5,0.5,1.0);
 }

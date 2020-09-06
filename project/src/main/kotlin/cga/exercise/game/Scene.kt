@@ -20,8 +20,7 @@ import org.joml.Vector2f
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.opengl.GL20.glGetUniformLocation
-import org.lwjgl.opengl.GL20.glUniformMatrix4fv
+import org.lwjgl.opengl.GL20.*
 import java.lang.IllegalArgumentException
 import java.lang.Math.*
 import java.util.*
@@ -37,20 +36,34 @@ class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
     private val staticShader2: ShaderProgram
 
-    private var mesh4: Mesh
+    //Meshes
+    private var groundmesh: Mesh
+    private var gatemesh: Mesh
 
-    private var ground = Renderable()
+    //Objekte
+    private var gate1 = Renderable()
+    private var gate2 = Renderable()
+    private var gate3 = Renderable()
+    private var ground1 = Renderable()
     private var ground2 = Renderable ()
     private var ground3 = Renderable ()
-    private val world = arrayOf(ground, ground2, ground3)
+
+    //Liste für Weltengeneration
+    private val groundworld = arrayOf(ground1, ground2, ground3)
+    private val gateworld = arrayOf(gate1,gate2,gate3)
     private var worldID = 0
 
+
     private var camera = TronCamera()
-    private var cycle = ModelLoader.loadModel("assets/Light Cycle/HQ_Movie cycle.obj", Math.toRadians(-90.0f), Math.toRadians(90.0f), 0.0f)
+//    private var cycle = ModelLoader.loadModel("assets/Light Cycle/HQ_Movie cycle.obj", Math.toRadians(-90.0f), Math.toRadians(90.0f), 0.0f)
+//            ?: throw IllegalArgumentException("loading failed")
+
+    private var car = ModelLoader.loadModel("assets/models/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
             ?: throw IllegalArgumentException("loading failed")
 
     private var pointLight = Pointlight(Vector3f(), Vector3f())
-    private var spotLight = Spotlight(Vector3f(), Vector3f())
+    private var spotLightleft = Spotlight(Vector3f(), Vector3f())
+    private var spotLightright = Spotlight(Vector3f(), Vector3f())
 
     private var oldMousePosX: Double = -1.0
     private var oldMousePosY: Double = -1.0
@@ -60,6 +73,7 @@ class Scene(private val window: GameWindow) {
      * Some values for lane-changing & vehicle controls
      *
      */
+    private var gamestart = false
     private var is_in_lane_change = false
     private var remaining_lane_change = 0.0
     private var break_overheat = 0
@@ -92,44 +106,67 @@ class Scene(private val window: GameWindow) {
         val res2: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
         val objMesh2: OBJLoader.OBJMesh = res2.objects[0].meshes[0]
 
+        //Gate
+        val res3: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/gate.obj")
+        val objMesh3: OBJLoader.OBJMesh = res3.objects[0].meshes[0]
+
         //Material
-        val texture_emit = Texture2D("assets/textures/ground_emit.png", true)
-        val texture_diff = Texture2D("assets/textures/ground_diff.png", true)
-        val texture_spec = Texture2D("assets/textures/ground_spec.png", true)
+        val texture_emit = Texture2D("assets/textures/ground2_emit.jpg", true)
+        val texture_diff = Texture2D("assets/textures/ground2_diff.jpg", true)
+        val texture_spec = Texture2D("assets/textures/ground2_spec.jpg", true)
+
 
         texture_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         texture_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         texture_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
-        val groundMaterial = Material(texture_diff, texture_emit, texture_spec, 60.0f, Vector2f(64.0f, 64.0f))
+        val groundMaterial = Material(texture_diff, texture_emit, texture_spec, 60.0f, Vector2f(8.0f, 8.0f))
+        val gateMaterial = Material(texture_diff, texture_emit, texture_spec, 0.0f, Vector2f(8.0f, 8.0f))
 
         //Groundmesh
-        mesh4 = Mesh(objMesh2.vertexData, objMesh2.indexData, vertexAttributes, groundMaterial)
-        ground.list.add(mesh4)
-        ground2.list.add(mesh4)
-        ground3.list.add(mesh4)
+        groundmesh = Mesh(objMesh2.vertexData, objMesh2.indexData, vertexAttributes, groundMaterial)
+        ground1.list.add(groundmesh)
+        ground2.list.add(groundmesh)
+        ground3.list.add(groundmesh)
 
-
+        //Gatemesh
+        gatemesh = Mesh(objMesh3.vertexData, objMesh3.indexData, vertexAttributes, gateMaterial)
+        gate1.list.add(gatemesh)
+        gate2.list.add(gatemesh)
+        gate3.list.add(gatemesh)
 
         //Lighting
         pointLight = Pointlight(camera.getWorldPosition(), Vector3f(1f, 1f, 0f))
-        spotLight = Spotlight(Vector3f(0.0f, 1.0f, -2.0f), Vector3f(1.0f))
+        spotLightleft = Spotlight(Vector3f(-0.8f, 1.0f, -1.0f), Vector3f(1.0f))
+        spotLightright = Spotlight(Vector3f(0.8f, 1.0f, -1.0f), Vector3f(1.0f))
 
         //Transformations
-        cycle.scaleLocal(Vector3f(0.8f))
-        camera.rotateLocal(Math.toRadians(-35.0f), 0.0f, 0.0f)
-        camera.translateLocal(Vector3f(0.0f, 0.0f, 4.0f))
-        pointLight.translateLocal(Vector3f(0.0f, 4.0f, 0.0f))
-        spotLight.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
+        car.scaleLocal(Vector3f(0.8f))
 
+
+        camera.rotateLocal(Math.toRadians(-25.0f), 0.0f, 0.0f)
+        camera.translateLocal(Vector3f(0.0f, 0.5f, 4.0f))
+        pointLight.translateLocal(Vector3f(0.0f, 4.0f, 0.0f))
+        spotLightleft.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
+        spotLightright.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
+
+            //Ground Translationen
         ground2.translateLocal(Vector3f(0.0f,0.0f, -45.0f))
         ground3.translateLocal(Vector3f(0.0f,0.0f, -90.0f))
 
+            //Gate Translatationen
+        gate1.translateLocal(Vector3f(0.0f,-1.5f,-45.0f))
+        gate1.scaleLocal(Vector3f(0.3f))
+        gate2.translateLocal(Vector3f(0.0f,-1.5f,-90.0f))
+        gate2.scaleLocal(Vector3f(0.3f))
+        gate3.translateLocal(Vector3f(0.0f,-1.5f,-135.0f))
+        gate3.scaleLocal(Vector3f(0.3f))
 
         //Parents
-        pointLight.parent = cycle
-        spotLight.parent = cycle
-        camera.parent = cycle
+        pointLight.parent = car
+        spotLightleft.parent = car
+        spotLightright.parent = car
+        camera.parent = car
 
     }
 
@@ -138,38 +175,46 @@ class Scene(private val window: GameWindow) {
         staticShader2.use()
         staticShader2.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
         camera.bind(staticShader2)
-        ground.render(staticShader2)
+        ground1.render(staticShader2)
         ground2.render(staticShader2)
         ground3.render(staticShader2)
 
         staticShader2.setUniform("sceneColour", Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2))))
-        cycle.render(staticShader2)
+        car.render(staticShader2)
         pointLight.bind(staticShader2, "cyclePoint")
-        spotLight.bind(staticShader2, "cycleSpot", camera.getCalculateViewMatrix())
+        spotLightright.bind(staticShader2, "cycleSpot", camera.getCalculateViewMatrix())
+        spotLightleft.bind(staticShader2, "cycleSpot", camera.getCalculateViewMatrix())
+
+        gate1.render(staticShader2)
+        gate2.render(staticShader2)
+        gate3.render(staticShader2)
+
     }
 
     fun update(dt: Float, t: Float) {
-
         pointLight.lightCol = Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2)))
-        //Automatisches losfahren
 
 
-        if (cycle.getWorldPosition().z.toInt()%45 == 0 && alreadyloaded == false && cycle.getWorldPosition().z.toInt() != 0){
+        //Unendlicher Ground und Gates
+        if (car.getWorldPosition().z.toInt()%45 == 0 && alreadyloaded == false && car.getWorldPosition().z.toInt() != 0){
             alreadyloaded = true
-            world[worldID].translateLocal(Vector3f(0.0f,0.0f, -135.0f))
+            groundworld[worldID].translateLocal(Vector3f(0.0f,0.0f, -135.0f))
+
+            gateworld[worldID].translateLocal(Vector3f(0.0f,0.0f, -135.0f/0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
             //ground.translateLocal(Vector3f(0.0f,0.0f, -135.0f))
             worldID += 1
             println("$worldID")
-            if (worldID == world.size) worldID = 0
+            if (worldID == groundworld.size) worldID = 0
 
         }
+        if (car.getWorldPosition().z.toInt()%45 != 0) alreadyloaded = false
 
-        if (cycle.getWorldPosition().z.toInt()%45 != 0) alreadyloaded = false
 
-
-        if (window.getKeyState(GLFW_KEY_W)) {
-            cycle.distance +=0.1
-            var deg = cycle.distance%360
+        if (window.getKeyState(GLFW_KEY_W)) gamestart = true
+        if (window.getKeyState(GLFW_KEY_W)){
+        //if (gamestart == true) {
+            car.distance +=0.1
+            var deg = car.distance%360
             var degInRad = deg * kotlin.math.PI / 180
 
             /**
@@ -191,7 +236,7 @@ class Scene(private val window: GameWindow) {
             }
 //            cycle.translateLocal(Vector3f(sin(cycle.getDirection() * kotlin.math.PI / 180).toFloat() * dt, 0.0f, (cos((cycle.getDirection() * kotlin.math.PI / 180).toFloat()) * dt * -1)))
             //cycle.translateLocal(Vector3f(path_to_side.toFloat(), sin(degInRad).toFloat() * 5.0f * dt, cos(degInRad).toFloat() * 5.0f * dt))
-            cycle.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, -20.0f * dt))
+            car.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, -20.0f * dt))
             //cycle.rotateLocal(deg.toFloat() * dt, 0.0f,0.0f )
 
             /**
@@ -237,10 +282,10 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_S)) {
 
             if (break_overheat <= 500) {
-                cycle.translateLocal(Vector3f(0.0f, 0.0f, 3.0f * dt))
+                car.translateLocal(Vector3f(0.0f, 0.0f, 15.0f * dt))
                 break_overheat +=2
             }
-            if (break_overheat >= 498) {
+            if (break_overheat >= 498 && window.getKeyState(GLFW_KEY_S) && break_overheat <= 500){
                 break_overheat +=100
             }
         }
