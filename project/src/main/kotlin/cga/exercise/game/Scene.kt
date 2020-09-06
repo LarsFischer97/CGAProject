@@ -55,8 +55,6 @@ class Scene(private val window: GameWindow) {
 
 
     private var camera = TronCamera()
-//    private var cycle = ModelLoader.loadModel("assets/Light Cycle/HQ_Movie cycle.obj", Math.toRadians(-90.0f), Math.toRadians(90.0f), 0.0f)
-//            ?: throw IllegalArgumentException("loading failed")
 
     private var car = ModelLoader.loadModel("assets/models/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
             ?: throw IllegalArgumentException("loading failed")
@@ -196,25 +194,36 @@ class Scene(private val window: GameWindow) {
 
 
         //Unendlicher Ground und Gates
-        if (car.getWorldPosition().z.toInt()%45 == 0 && alreadyloaded == false && car.getWorldPosition().z.toInt() != 0){
+        if (car.getWorldPosition().z.toInt() % 45 == 0 && alreadyloaded == false && car.getWorldPosition().z.toInt() != 0) {
             alreadyloaded = true
-            groundworld[worldID].translateLocal(Vector3f(0.0f,0.0f, -135.0f))
+            groundworld[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f))
 
-            gateworld[worldID].translateLocal(Vector3f(0.0f,0.0f, -135.0f/0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
-            //ground.translateLocal(Vector3f(0.0f,0.0f, -135.0f))
+            //Platzierung der Tore mit leichten Random X Faktor
+
+            gateworld[worldID].translateLocal(Vector3f((Math.random() * 15 - Math.random() * 15).toFloat() * 1.5f, 0.0f, -135.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
+
+
+            //Korrektur der Tore Falls sie die Spielwelt zu sehr verlassen würden.
+            if (gateworld[worldID].getWorldPosition().x > 8){
+                gateworld[worldID].translateLocal(Vector3f(-8.0f/0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
+            }
+            if (gateworld[worldID].getWorldPosition().x < -8){
+                gateworld[worldID].translateLocal(Vector3f(8.0f/0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
+            }
+
             worldID += 1
             println("$worldID")
             if (worldID == groundworld.size) worldID = 0
 
         }
-        if (car.getWorldPosition().z.toInt()%45 != 0) alreadyloaded = false
+        if (car.getWorldPosition().z.toInt() % 45 != 0) alreadyloaded = false
 
 
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
-        if (window.getKeyState(GLFW_KEY_W)){
-        //if (gamestart == true) {
-            car.distance +=0.1
-            var deg = car.distance%360
+        if (window.getKeyState(GLFW_KEY_W)) {
+            //if (gamestart == true) {
+            car.distance += 0.1
+            var deg = car.distance % 360
             var degInRad = deg * kotlin.math.PI / 180
 
             /**
@@ -222,30 +231,27 @@ class Scene(private val window: GameWindow) {
              * When their is an active lane_change we need to reduce the remaining lane_change by adding it to our movement vector
              */
             var path_to_side = 0.0
-            if(remaining_lane_change > 0){                      //
+            if (remaining_lane_change > 0) {                      //
                 remaining_lane_change -= 0.05
                 path_to_side += 0.05
             }
-            if(remaining_lane_change < 0){
+            if (remaining_lane_change < 0) {
                 remaining_lane_change += 0.05
                 path_to_side -= 0.05
             }
 
-            if (break_overheat >= 0){
+            if (break_overheat >= 0) {
                 break_overheat -= 1
             }
-//            cycle.translateLocal(Vector3f(sin(cycle.getDirection() * kotlin.math.PI / 180).toFloat() * dt, 0.0f, (cos((cycle.getDirection() * kotlin.math.PI / 180).toFloat()) * dt * -1)))
-            //cycle.translateLocal(Vector3f(path_to_side.toFloat(), sin(degInRad).toFloat() * 5.0f * dt, cos(degInRad).toFloat() * 5.0f * dt))
-            car.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, -20.0f * dt))
-            //cycle.rotateLocal(deg.toFloat() * dt, 0.0f,0.0f )
 
+            car.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, -20.0f * dt))
             /**
              * When lane_change is over re-enable chaning the lane
              */
-            if(remaining_lane_change <= 0.001 || remaining_lane_change >= -0.001){
+            if (remaining_lane_change <= 0.001 || remaining_lane_change >= -0.001) {
                 is_in_lane_change = false
             }
-            //println("${cycle.getWorldPosition().z}")
+
         }
 
 
@@ -253,116 +259,35 @@ class Scene(private val window: GameWindow) {
             /**
              * Initiate lane-change
              */
-            if(!is_in_lane_change){
+            if (!is_in_lane_change) {
                 is_in_lane_change = true
                 remaining_lane_change = -3.0
             }
-//            cycle.translateLocal(Vector3f(-5.0f * dt, 0.0f, 0.0f))
-//            camera.rotateLocal(0.0f, Math.toRadians(-10.0f * dt),0.0f)
-//            cycle.setDirection(cycle.getDirection() + 0.1)
-//            println("Key: A - xyz (${cycle.getPosition().x}/ ${cycle.getPosition().y}/ ${cycle.getPosition().z}) direction (${cycle.getDirection()})")
-//            cycle.rotateLocal(0.0f, 1.0f * dt, 0.0f)
         }
 
         if (window.getKeyState(GLFW_KEY_D)) {
             /**
              * Initiate lane-change
              */
-            if(!is_in_lane_change){
+            if (!is_in_lane_change) {
                 is_in_lane_change = true
                 remaining_lane_change = 3.0
             }
-//            cycle.translateLocal(Vector3f(5.0f * dt, 0.0f, 0.0f))
-//            camera.rotateLocal(0.0f, Math.toRadians(10.0f * dt),0.0f)
-//            cycle.setDirection(cycle.getDirection() - 0.1)
-//            println("Key D - xyz (${cycle.getPosition().x}/ ${cycle.getPosition().y}/ ${cycle.getPosition().z}) direction (${cycle.getDirection()})")
-//            cycle.rotateLocal(0.0f, -1.0f * dt, 0.0f)
         }
 
         if (window.getKeyState(GLFW_KEY_S)) {
 
             if (break_overheat <= 500) {
                 car.translateLocal(Vector3f(0.0f, 0.0f, 15.0f * dt))
-                break_overheat +=2
+                break_overheat += 2
             }
-            if (break_overheat >= 498 && window.getKeyState(GLFW_KEY_S) && break_overheat <= 500){
-                break_overheat +=100
-            }
-        }
-
-//        if (window.getKeyState(GLFW_KEY_W)){
-//            cycle.translateLocal(Vector3f(0.0f, 0.0f, -2.0f * dt))
-//        }
-
-        /*
-        if(window.getKeyState(GLFW_KEY_W)){
-            //Bewege Kugel vorwärts
-            if(window.getKeyState(GLFW_KEY_LEFT_SHIFT)){
-                cycle.translateLocal(Vector3f(0.0f, 0.0f, -14.0f * dt))
-            }
-            else if(window.getKeyState(GLFW_KEY_LEFT_CONTROL)){
-                cycle.translateLocal(Vector3f(0.0f, 0.0f, -2.0f * dt))
-            }
-            else {
-                cycle.translateLocal(Vector3f(0.0f, 0.0f, -6.0f * dt))
-            }
-            if (window.getKeyState(GLFW_KEY_A)){
-                //Bewege Kamera nach links
-                //cycle.rotateLocal(0.0f, Math.toRadians(50.0f * dt),0.0f)
-
-                cycle.translateLocal(Vector3f(-5.0f * dt, 0.0f, 0.0f))
-
-                //camera.rotateLocal(0.0f, Math.toRadians(-10.0f * dt),0.0f)
-            }
-            if (window.getKeyState(GLFW_KEY_D)){
-                //Bewege Sphere/Kamera nach rechts
-                //cycle.rotateLocal(0.0f, Math.toRadians(-50.0f * dt),0.0f)
-                cycle.translateLocal(Vector3f(5.0f * dt, 0.0f, 0.0f))
-                //camera.rotateLocal(0.0f, Math.toRadians(10.0f * dt),0.0f)
+            if (break_overheat >= 498 && window.getKeyState(GLFW_KEY_S) && break_overheat <= 500) {
+                break_overheat += 100
             }
         }
-        if (window.getKeyState(GLFW_KEY_S)) {
-            //Bewege Kugel rückwärts
-            cycle.translateLocal(Vector3f(0.0f, 0.0f, 3 * dt))
-            if (window.getKeyState(GLFW_KEY_A)) {
-                //Bewege Kamera nach links
-                cycle.rotateLocal(0.0f, Math.toRadians(0.5f), 0.0f)
-            }
-            if (window.getKeyState(GLFW_KEY_D)) {
-                //Bewege Sphere/Kamera nach rechts
-                cycle.rotateLocal(0.0f, Math.toRadians(-0.5f), 0.0f)
-
-            }
-        }
-        if (window.getKeyState(GLFW_KEY_T)){
-
-            camera.rotateLocal(Math.toRadians(-35.0f), 0.0f, 0.0f)
-            camera.translateLocal(Vector3f(0.0f,0.0f,4.0f))
-        }
-        var a: Boolean? = null
-        var d: Boolean? = null
-
-
-        if (window.getKeyState(GLFW_KEY_A) && a != true){
-            camera.rotateLocal(0.0f, Math.toRadians(-60.0f),0.0f)
-            d = false
-            a = true
-        }
-
-        if (window.getKeyState(GLFW_KEY_A) && d != true){
-            camera.rotateLocal(0.0f, Math.toRadians(60.0f),0.0f)
-            a = false
-            d = true
-        }
-
-
-         */
     }
 
-    fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {
-
-
-    }
+  fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
 
     fun onMouseMove(xpos: Double, ypos: Double) {
         val deltaX: Double = xpos - oldMousePosX
