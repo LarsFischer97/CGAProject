@@ -1,26 +1,13 @@
 # CGAProject
-Dies ist das Template Projekt für die Abschlussprojekte im Modul Computergrafik und Animation an der TH Köln.
 
-Bitte forken Sie dieses Projekt und entwickeln Sie Ihr Abschlussprojekt in diesem Fork weiter. Denken Sie daran uwemuesse und martineisemann als Collaborators hinzuzufügen, damit wir darauf zugreifen können.
+# Mathe Racing Game
+Dieses CGAAbschlussprojekt befasst sich mit der Implementierung eines Mathelernspiels. Der Spieler fährt mit einem Fahrzeug immer zu eine Straße herunter und kann als Steuerung die Spur der Straße wechseln. Fahrt nimmt man von allein auf und wird mit der Zeit immer schneller. Dem Spieler wird eine einfache Matherechnung eingeblendet, diese Rechnung löst man und fährt durch das Tor, welches die Lösung auf dem Torbogen stehen hat. Nimmt man ein falsches Tor, verliert man ein Leben und verliert auf Dauer das Spiel. Da die Geschwindigkeit immer zu zunimmt, gewinnt das Spiel an Schwierigkeit. Mögliche weitere Implementationen sind z.B. Gegenverkehr un dein Bremsenfeature, welches über eine Abklingzeit verwendbar ist, oder ähnliche Spielmechaniken. Das Abschlussprojekt befasst sich damit dem Spieler spielerisch Kopfrechnen anzutrainieren und durch die steigende Schwierigkeit einen Ansporn zu haben, weiterzukommen.
 
-Löschen Sie als erstes den Abschnitt CGAProjekt in dieser Datei und füllen Sie den Rest entsprechend aus für die Abgabe. 
-
-# Projektname
-Fügen Sie ihren Projektnamen hinzu
+ [Notes](https://github.com/LarsFischer97/CGAProject/wiki)
 
 # Teammitglieder
-Listen Sie hier noch einmal alle Teammitglieder auf.
-- Armin Anfang
-- Berta Beliebig
-- Carola Coautor
+- Lars Fischer
 
 # Featureliste 
-Listen Sie hier alle relevanten Features als Liste mit sinnvoller Reihenfolge auf mit Angabe wer das Feature implementiert hat.
-Bei starker Ungleicheit der Features behalten wir uns eine individuelle Notenvergabe vor.
-
-Bspw.
-
-- Verschiedene Kameramodelle (Wechsel zwischen orthographischer und perspektivischer Kamera mittels "c") (Berta)
-- Dynamische Kamera (Steuerung mittels Maus und "WASD" auf der Tastatur) (Carola und Armin)
-- Verschiedene Shaderprogramme (Wechsel mittels "s") (Carola)
-- ...
+- Endless World
+- Bremse die nach Gewisser Zeit überhitzt und erst später wieder verwendbar ist
