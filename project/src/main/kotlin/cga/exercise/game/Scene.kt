@@ -34,11 +34,16 @@ import kotlin.math.sin
  */
 class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
-    private val staticShader2: ShaderProgram
+    private val normalShader: ShaderProgram
+    private val greyShader: ShaderProgram
+    private var usedShader: ShaderProgram
+
+    var setShader: Int = 1
 
     //Meshes
     private var groundmesh: Mesh
     private var gatemesh: Mesh
+//    private var carmesh: Mesh
 
     //Objekte
     private var gate1 = Renderable()
@@ -47,11 +52,15 @@ class Scene(private val window: GameWindow) {
     private var ground1 = Renderable()
     private var ground2 = Renderable ()
     private var ground3 = Renderable ()
+    private var car1 = Renderable ()
+    private var car2 = Renderable ()
+    private var car3 = Renderable ()
 
-    //Liste für Weltengeneration
+    //Listen für Worldobjects
     private val groundworld = arrayOf(ground1, ground2, ground3)
     private val gateworld = arrayOf(gate1,gate2,gate3)
     private var worldID = 0
+    private val cars = arrayOf(car1,car2,car3)
 
 
     private var camera = TronCamera()
@@ -83,7 +92,10 @@ class Scene(private val window: GameWindow) {
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
-        staticShader2 = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
+        normalShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
+        greyShader = ShaderProgram("assets/shaders/grey_vert.glsl", "assets/shaders/grey_frag.glsl")
+
+        usedShader = normalShader
 
         //initial opengl state
         glClearColor(0f, 0f, 0f, 1.0f); GLError.checkThrow()
@@ -100,12 +112,19 @@ class Scene(private val window: GameWindow) {
         val attrNorm = VertexAttribute(2, 3, GL_FLOAT, false, stride, 5 * 4)
         val vertexAttributes = arrayOf(attrPos, attrTC, attrNorm)
 
+        //Gegenverkehr
+        var car1 = ModelLoader.loadModel("assets/models/car2.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
+                ?: throw IllegalArgumentException("loading failed")
+
+//        val res1: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/car2.obj")
+//        val objMesh1: OBJLoader.OBJMesh = res1.objects[0].meshes[0]
+
         //Ground
         val res2: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
         val objMesh2: OBJLoader.OBJMesh = res2.objects[0].meshes[0]
 
         //Gate
-        val res3: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/gate.obj")
+        val res3: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/gate2.obj")
         val objMesh3: OBJLoader.OBJMesh = res3.objects[0].meshes[0]
 
         //Material
@@ -113,13 +132,19 @@ class Scene(private val window: GameWindow) {
         val texture_diff = Texture2D("assets/textures/ground2_diff.jpg", true)
         val texture_spec = Texture2D("assets/textures/ground2_spec.jpg", true)
 
-
         texture_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         texture_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         texture_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
         val groundMaterial = Material(texture_diff, texture_emit, texture_spec, 60.0f, Vector2f(8.0f, 8.0f))
         val gateMaterial = Material(texture_diff, texture_emit, texture_spec, 0.0f, Vector2f(8.0f, 8.0f))
+//        val carMaterial = Material(texture_diff, texture_emit, texture_spec, 100.0f, Vector2f(8.0f, 8.0f))
+
+        //Carmesh
+//        carmesh = Mesh(objMesh1.vertexData, objMesh3.indexData, vertexAttributes, carMaterial)
+//        car1.list.add(carmesh)
+//        car2.list.add(carmesh)
+//        car3.list.add(carmesh)
 
         //Groundmesh
         groundmesh = Mesh(objMesh2.vertexData, objMesh2.indexData, vertexAttributes, groundMaterial)
@@ -133,6 +158,8 @@ class Scene(private val window: GameWindow) {
         gate2.list.add(gatemesh)
         gate3.list.add(gatemesh)
 
+
+
         //Lighting
         pointLight = Pointlight(camera.getWorldPosition(), Vector3f(1f, 1f, 0f))
         spotLightleft = Spotlight(Vector3f(-0.8f, 1.0f, -1.0f), Vector3f(1.0f))
@@ -141,12 +168,15 @@ class Scene(private val window: GameWindow) {
         //Transformations
         car.scaleLocal(Vector3f(0.8f))
 
-
         camera.rotateLocal(Math.toRadians(-25.0f), 0.0f, 0.0f)
         camera.translateLocal(Vector3f(0.0f, 0.5f, 4.0f))
         pointLight.translateLocal(Vector3f(0.0f, 4.0f, 0.0f))
         spotLightleft.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
         spotLightright.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
+
+            //Car 2 Translation
+        car1.translateLocal(Vector3f(0.0f,1.0f, -4.0f))
+        car1.rotateLocal(0.0f,0.0f,0.0f)
 
             //Ground Translationen
         ground2.translateLocal(Vector3f(0.0f,0.0f, -45.0f))
@@ -170,22 +200,33 @@ class Scene(private val window: GameWindow) {
 
     fun render(dt: Float, t: Float) {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-        staticShader2.use()
-        staticShader2.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
-        camera.bind(staticShader2)
-        ground1.render(staticShader2)
-        ground2.render(staticShader2)
-        ground3.render(staticShader2)
 
-        staticShader2.setUniform("sceneColour", Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2))))
-        car.render(staticShader2)
-        pointLight.bind(staticShader2, "cyclePoint")
-        spotLightright.bind(staticShader2, "cycleSpot", camera.getCalculateViewMatrix())
-        spotLightleft.bind(staticShader2, "cycleSpot", camera.getCalculateViewMatrix())
+        when (setShader){
+            1 -> usedShader = normalShader
+            2 -> usedShader = greyShader
+            else -> {}
+        }
 
-        gate1.render(staticShader2)
-        gate2.render(staticShader2)
-        gate3.render(staticShader2)
+        usedShader.use()
+        usedShader.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
+        camera.bind(usedShader)
+        ground1.render(usedShader)
+        ground2.render(usedShader)
+        ground3.render(usedShader)
+
+        usedShader.setUniform("sceneColour", Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2))))
+        car.render(usedShader)
+        pointLight.bind(usedShader, "cyclePoint")
+        spotLightright.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
+        spotLightleft.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
+
+        car1.render(usedShader)
+        //car2.render(usedShader)
+        //car3.render(usedShader)
+
+        gate1.render(usedShader)
+        gate2.render(usedShader)
+        gate3.render(usedShader)
 
     }
 
@@ -287,7 +328,19 @@ class Scene(private val window: GameWindow) {
         }
     }
 
-  fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
+  fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {
+
+      //Shader wechsel
+      if (window.getKeyState(GLFW_KEY_1)) {
+          when (setShader) {
+              1 -> setShader = 2
+              2 -> setShader = 1
+              else -> {
+                  setShader = 1
+              }
+          }
+      }
+  }
 
     fun onMouseMove(xpos: Double, ypos: Double) {
         val deltaX: Double = xpos - oldMousePosX

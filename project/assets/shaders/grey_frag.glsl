@@ -76,6 +76,7 @@ void main(){
     vec3 emitCol = texture(emit, vertexData.texture).rgb;
     vec3 specularCol = texture(specular, vertexData.texture).rgb;
 
+
     //emissive Term
     vec3 result = emitCol * sceneColour;
 
@@ -83,6 +84,10 @@ void main(){
     result += shade(n, lp, v, diffCol, specularCol, shininess) * pointLightIntensity(cyclePointLightCol, lpLength);
     result += shade(n, sp, v, diffCol, specularCol, shininess) * spotLightIntensity(cycleSpotLightCol, spLength, sp, cycleSpotLightDir);
 
-    color = vec4(result, 1.0);
+
+
+
+    color = vec4((result.x+result.y+result.z)/3, (result.x+result.y+result.z)/3, (result.x+result.y+result.z)/3 , 1.0);
+
 
 }
