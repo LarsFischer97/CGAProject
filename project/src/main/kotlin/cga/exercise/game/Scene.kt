@@ -36,6 +36,7 @@ class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
     private val normalShader: ShaderProgram
     private val greyShader: ShaderProgram
+    private val toonShader: ShaderProgram
     private var usedShader: ShaderProgram
 
     var setShader: Int = 1
@@ -92,8 +93,9 @@ class Scene(private val window: GameWindow) {
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
-        normalShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
+        normalShader = ShaderProgram("assets/shaders/normal_vert.glsl", "assets/shaders/normal_frag.glsl")
         greyShader = ShaderProgram("assets/shaders/grey_vert.glsl", "assets/shaders/grey_frag.glsl")
+        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
 
         usedShader = normalShader
 
@@ -131,6 +133,8 @@ class Scene(private val window: GameWindow) {
         val texture_emit = Texture2D("assets/textures/ground2_emit.jpg", true)
         val texture_diff = Texture2D("assets/textures/ground2_diff.jpg", true)
         val texture_spec = Texture2D("assets/textures/ground2_spec.jpg", true)
+
+        
 
         texture_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         texture_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
@@ -204,8 +208,10 @@ class Scene(private val window: GameWindow) {
         when (setShader){
             1 -> usedShader = normalShader
             2 -> usedShader = greyShader
+            3 -> usedShader = toonShader
             else -> {}
         }
+
 
         usedShader.use()
         usedShader.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
@@ -334,7 +340,8 @@ class Scene(private val window: GameWindow) {
       if (window.getKeyState(GLFW_KEY_1)) {
           when (setShader) {
               1 -> setShader = 2
-              2 -> setShader = 1
+              2 -> setShader = 3
+              3 -> setShader = 1
               else -> {
                   setShader = 1
               }
