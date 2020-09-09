@@ -20,6 +20,7 @@ import org.joml.Vector2f
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20.*
 import java.lang.IllegalArgumentException
 import java.lang.Math.*
@@ -44,6 +45,7 @@ class Scene(private val window: GameWindow) {
     //Meshes
     private var groundmesh: Mesh
     private var gatemesh: Mesh
+    private var wallmesh: Mesh
 //    private var carmesh: Mesh
 
     //Objekte
@@ -56,11 +58,17 @@ class Scene(private val window: GameWindow) {
     private var car1 = Renderable ()
     private var car2 = Renderable ()
     private var car3 = Renderable ()
+    private var wall1 = Renderable ()
+    private var wall2 = Renderable ()
+    private var wall3 = Renderable ()
+    private var wall4 = Renderable ()
 
     //Listen für Worldobjects
     private val groundworld = arrayOf(ground1, ground2, ground3)
     private val gateworld = arrayOf(gate1,gate2,gate3)
+    private val wallworld = arrayOf(wall1, wall2, wall3, wall4)
     private var worldID = 0
+    private var wallworldID = 0
     private val cars = arrayOf(car1,car2,car3)
 
 
@@ -89,6 +97,7 @@ class Scene(private val window: GameWindow) {
     //scene loading
 
     private var alreadyloaded = false
+    private var wallalreadyloaded = false
 
     //scene setup
     init {
@@ -129,19 +138,30 @@ class Scene(private val window: GameWindow) {
         val res3: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/gate2.obj")
         val objMesh3: OBJLoader.OBJMesh = res3.objects[0].meshes[0]
 
+        //Wall
+        val res4: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/bigwall.obj")
+        val objMesh4: OBJLoader.OBJMesh = res4.objects[0].meshes[0]
+
+
         //Material
-        val texture_emit = Texture2D("assets/textures/ground2_emit.jpg", true)
-        val texture_diff = Texture2D("assets/textures/ground2_diff.jpg", true)
-        val texture_spec = Texture2D("assets/textures/ground2_spec.jpg", true)
+        val ground_emit = Texture2D("assets/textures/ground2_emit.jpg", true)
+        val ground_diff = Texture2D("assets/textures/ground2_diff.jpg", true)
+        val ground_spec = Texture2D("assets/textures/ground2_spec.jpg", true)
 
-        
+        val gate_emit = Texture2D("assets/textures/gate_emit.jpg", true)
+        val gate_diff = Texture2D("assets/textures/gate_diff.jpg", true)
+        val gate_spec = Texture2D("assets/textures/gate_spec.jpg", true)
 
-        texture_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
-        texture_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
-        texture_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        ground_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        ground_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        ground_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
-        val groundMaterial = Material(texture_diff, texture_emit, texture_spec, 60.0f, Vector2f(8.0f, 8.0f))
-        val gateMaterial = Material(texture_diff, texture_emit, texture_spec, 0.0f, Vector2f(8.0f, 8.0f))
+        gate_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        gate_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        gate_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+
+        val groundMaterial = Material(ground_diff, ground_emit, ground_spec, 60.0f, Vector2f(8.0f, 8.0f))
+        val gateMaterial = Material(gate_diff, gate_emit, gate_spec, 60.0f, Vector2f(8.0f, 8.0f))
 //        val carMaterial = Material(texture_diff, texture_emit, texture_spec, 100.0f, Vector2f(8.0f, 8.0f))
 
         //Carmesh
@@ -162,7 +182,12 @@ class Scene(private val window: GameWindow) {
         gate2.list.add(gatemesh)
         gate3.list.add(gatemesh)
 
-
+        //Wall
+        wallmesh = Mesh(objMesh4.vertexData, objMesh4.indexData, vertexAttributes, groundMaterial)
+        wall1.list.add(wallmesh)
+        wall2.list.add(wallmesh)
+        wall3.list.add(wallmesh)
+        wall4.list.add(wallmesh)
 
         //Lighting
         pointLight = Pointlight(camera.getWorldPosition(), Vector3f(1f, 1f, 0f))
@@ -179,8 +204,8 @@ class Scene(private val window: GameWindow) {
         spotLightright.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
 
             //Car 2 Translation
-        car1.translateLocal(Vector3f(0.0f,1.0f, -4.0f))
-        car1.rotateLocal(0.0f,0.0f,0.0f)
+//        car1.translateLocal(Vector3f(0.0f,1.0f, -4.0f))
+//        car1.rotateLocal(0.0f,0.0f,0.0f)
 
             //Ground Translationen
         ground2.translateLocal(Vector3f(0.0f,0.0f, -45.0f))
@@ -193,6 +218,21 @@ class Scene(private val window: GameWindow) {
         gate2.scaleLocal(Vector3f(0.3f))
         gate3.translateLocal(Vector3f(0.0f,-1.5f,-135.0f))
         gate3.scaleLocal(Vector3f(0.3f))
+
+
+        wall1.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
+        wall1.translateGlobal(Vector3f(-22.0f,0.0f,33.5f))
+        wall1.scaleLocal(Vector3f(0.2f))
+        wall2.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
+        wall2.translateGlobal(Vector3f(-22.0f,0.0f,-60.0f))
+        wall2.scaleLocal(Vector3f(0.2f))
+        wall3.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
+        wall3.translateGlobal(Vector3f(-22.0f,0.0f,-153.5f))
+        wall3.scaleLocal(Vector3f(0.2f))
+        wall4.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
+        wall4.translateGlobal(Vector3f(-22.0f,0.0f,-247.0f))
+        wall4.scaleLocal(Vector3f(0.2f))
+
 
         //Parents
         pointLight.parent = car
@@ -234,6 +274,11 @@ class Scene(private val window: GameWindow) {
         gate2.render(usedShader)
         gate3.render(usedShader)
 
+        wall1.render(usedShader)
+        wall2.render(usedShader)
+        wall3.render(usedShader)
+        wall4.render(usedShader)
+
     }
 
     fun update(dt: Float, t: Float) {
@@ -249,7 +294,6 @@ class Scene(private val window: GameWindow) {
 
             gateworld[worldID].translateLocal(Vector3f((Math.random() * 15 - Math.random() * 15).toFloat() * 1.5f, 0.0f, -135.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
 
-
             //Korrektur der Tore Falls sie die Spielwelt zu sehr verlassen würden.
             if (gateworld[worldID].getWorldPosition().x > 8){
                 gateworld[worldID].translateLocal(Vector3f(-8.0f/0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
@@ -259,11 +303,28 @@ class Scene(private val window: GameWindow) {
             }
 
             worldID += 1
-            println("$worldID")
+            //println("$worldID")
             if (worldID == groundworld.size) worldID = 0
 
         }
+
+        if (car.getWorldPosition().z.toInt() % 65 == 0 && wallalreadyloaded == false && car.getWorldPosition().z.toInt() != 0) {
+            wallalreadyloaded = true
+            wallworld[wallworldID].translateGlobal(Vector3f(0.0f, 0.0f, -280.5f))
+            println("Wand ${wallworldID} wird bewegt nach ${wallworld[wallworldID].getWorldPosition().x}/${wallworld[wallworldID].getWorldPosition().y}/${wallworld[wallworldID].getWorldPosition().z}")
+
+            wallworldID += 1
+
+            //println("${car.getWorldPosition().z.toInt()}")
+            if (wallworldID == wallworld.size) wallworldID = 0
+
+//            println("Wand ${wallworldID-1} wird bewegt nach ${wallworld[wallworldID].getWorldPosition().x}/${wallworld[wallworldID].getWorldPosition().y}/${wallworld[wallworldID].getWorldPosition().z}")
+        }
+
+
+
         if (car.getWorldPosition().z.toInt() % 45 != 0) alreadyloaded = false
+        if (car.getWorldPosition().z.toInt() % 65 != 0) wallalreadyloaded = false
 
 
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
