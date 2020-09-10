@@ -39,6 +39,7 @@ class Scene(private val window: GameWindow) {
     private val greyShader: ShaderProgram
     private val toonShader: ShaderProgram
     private val one_bit_monochrom_Shader: ShaderProgram
+    private val nightShader: ShaderProgram
     private var usedShader: ShaderProgram
 
     var setShader: Int = 1
@@ -48,6 +49,9 @@ class Scene(private val window: GameWindow) {
     private var groundmesh: Mesh
     private var gatemesh: Mesh
     private var wallmesh: Mesh
+    private var wallmeshright: Mesh
+    private var lanternmesh: Mesh
+    private var lanternmeshleft: Mesh
 //    private var carmesh: Mesh
 
     //Objekte
@@ -55,23 +59,36 @@ class Scene(private val window: GameWindow) {
     private var gate2 = Renderable()
     private var gate3 = Renderable()
     private var ground1 = Renderable()
-    private var ground2 = Renderable ()
-    private var ground3 = Renderable ()
-    private var car1 = Renderable ()
-    private var car2 = Renderable ()
-    private var car3 = Renderable ()
-    private var wall1 = Renderable ()
-    private var wall2 = Renderable ()
-    private var wall3 = Renderable ()
-    private var wall4 = Renderable ()
+    private var ground2 = Renderable()
+    private var ground3 = Renderable()
+    private var car1 = Renderable()
+    private var car2 = Renderable()
+    private var car3 = Renderable()
+    private var wall1 = Renderable()
+    private var wall2 = Renderable()
+    private var wall3 = Renderable()
+    private var wall4 = Renderable()
+    private var wall1right = Renderable()
+    private var wall2right = Renderable()
+    private var wall3right = Renderable()
+    private var wall4right = Renderable()
+    private var lantern1 = Renderable()
+    private var lantern2 = Renderable()
+    private var lantern3 = Renderable()
+    private var lantern1left = Renderable()
+    private var lantern2left = Renderable()
+    private var lantern3left = Renderable()
 
     //Listen für Worldobjects
     private val groundworld = arrayOf(ground1, ground2, ground3)
-    private val gateworld = arrayOf(gate1,gate2,gate3)
+    private val gateworld = arrayOf(gate1, gate2, gate3)
     private val wallworld = arrayOf(wall1, wall2, wall3, wall4)
+    private val wallworldright = arrayOf(wall1right, wall2right, wall3right, wall4right)
+    private val lanternworld = arrayOf(lantern1,lantern2,lantern3)
+    private val lanternworldleft = arrayOf(lantern1left,lantern2left,lantern3left)
     private var worldID = 0
     private var wallworldID = 0
-    private val cars = arrayOf(car1,car2,car3)
+    private val cars = arrayOf(car1, car2, car3)
 
 
     private var camera = TronCamera()
@@ -107,6 +124,7 @@ class Scene(private val window: GameWindow) {
         normalShader = ShaderProgram("assets/shaders/normal_vert.glsl", "assets/shaders/normal_frag.glsl")
         greyShader = ShaderProgram("assets/shaders/grey_vert.glsl", "assets/shaders/grey_frag.glsl")
         toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
+        nightShader = ShaderProgram("assets/shaders/night_vert.glsl", "assets/shaders/night_frag.glsl")
         one_bit_monochrom_Shader = ShaderProgram("assets/shaders/1bit_monochrom_vert.glsl", "assets/shaders/1bit_monochrom_frag.glsl")
 
         usedShader = normalShader
@@ -144,7 +162,14 @@ class Scene(private val window: GameWindow) {
         //Wall
         val res4: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/bigwall.obj")
         val objMesh4: OBJLoader.OBJMesh = res4.objects[0].meshes[0]
+        val res5: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/bigwall.obj")
+        val objMesh5: OBJLoader.OBJMesh = res5.objects[0].meshes[0]
 
+        //Lanterns
+        val res6: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/lantern.obj")
+        val objMesh6: OBJLoader.OBJMesh = res6.objects[0].meshes[0]
+        val res7: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/lantern.obj")
+        val objMesh7: OBJLoader.OBJMesh = res7.objects[0].meshes[0]
 
         //Material
         val ground_emit = Texture2D("assets/textures/ground2_emit.jpg", true)
@@ -192,6 +217,24 @@ class Scene(private val window: GameWindow) {
         wall3.list.add(wallmesh)
         wall4.list.add(wallmesh)
 
+        wallmeshright = Mesh(objMesh5.vertexData, objMesh5.indexData, vertexAttributes, groundMaterial)
+        wall1right.list.add(wallmeshright)
+        wall2right.list.add(wallmeshright)
+        wall3right.list.add(wallmeshright)
+        wall4right.list.add(wallmeshright)
+
+        //Lantern
+        lanternmesh = Mesh(objMesh6.vertexData, objMesh6.indexData, vertexAttributes, groundMaterial)
+        lantern1.list.add(lanternmesh)
+        lantern2.list.add(lanternmesh)
+        lantern3.list.add(lanternmesh)
+
+        lanternmeshleft = Mesh(objMesh7.vertexData, objMesh7.indexData, vertexAttributes, groundMaterial)
+        lantern1left.list.add(lanternmeshleft)
+        lantern2left.list.add(lanternmeshleft)
+        lantern3left.list.add(lanternmeshleft)
+
+
         //Lighting
         pointLight = Pointlight(camera.getWorldPosition(), Vector3f(1f, 1f, 0f))
         spotLightleft = Spotlight(Vector3f(-0.8f, 1.0f, -1.0f), Vector3f(1.0f))
@@ -206,35 +249,69 @@ class Scene(private val window: GameWindow) {
         spotLightleft.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
         spotLightright.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
 
-            //Car 2 Translation
+        //Car 2 Translation
 //        car1.translateLocal(Vector3f(0.0f,1.0f, -4.0f))
 //        car1.rotateLocal(0.0f,0.0f,0.0f)
 
-            //Ground Translationen
-        ground2.translateLocal(Vector3f(0.0f,0.0f, -45.0f))
-        ground3.translateLocal(Vector3f(0.0f,0.0f, -90.0f))
+        //Ground Translationen
+        ground2.translateLocal(Vector3f(0.0f, 0.0f, -45.0f))
+        ground3.translateLocal(Vector3f(0.0f, 0.0f, -90.0f))
 
-            //Gate Translatationen
-        gate1.translateLocal(Vector3f(0.0f,-1.5f,-45.0f))
+        //Gate Translatationen
+        gate1.translateLocal(Vector3f(0.0f, -1.5f, -45.0f))
         gate1.scaleLocal(Vector3f(0.3f))
-        gate2.translateLocal(Vector3f(0.0f,-1.5f,-90.0f))
+        gate2.translateLocal(Vector3f(0.0f, -1.5f, -90.0f))
         gate2.scaleLocal(Vector3f(0.3f))
-        gate3.translateLocal(Vector3f(0.0f,-1.5f,-135.0f))
+        gate3.translateLocal(Vector3f(0.0f, -1.5f, -135.0f))
         gate3.scaleLocal(Vector3f(0.3f))
 
-
-        wall1.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
-        wall1.translateGlobal(Vector3f(-22.0f,0.0f,33.5f))
+        //Wall Translatationen
+        wall1.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall1.translateGlobal(Vector3f(-22.0f, 0.0f, 33.5f))
         wall1.scaleLocal(Vector3f(0.2f))
-        wall2.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
-        wall2.translateGlobal(Vector3f(-22.0f,0.0f,-60.0f))
+        wall2.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall2.translateGlobal(Vector3f(-22.0f, 0.0f, -60.0f))
         wall2.scaleLocal(Vector3f(0.2f))
-        wall3.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
-        wall3.translateGlobal(Vector3f(-22.0f,0.0f,-153.5f))
+        wall3.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall3.translateGlobal(Vector3f(-22.0f, 0.0f, -153.5f))
         wall3.scaleLocal(Vector3f(0.2f))
-        wall4.rotateAroundPoint(0.0f,Math.toRadians(90.0f),0.0f,Vector3f(0.0f))
-        wall4.translateGlobal(Vector3f(-22.0f,0.0f,-247.0f))
+        wall4.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall4.translateGlobal(Vector3f(-22.0f, 0.0f, -247.0f))
         wall4.scaleLocal(Vector3f(0.2f))
+
+        wall1right.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall1right.translateGlobal(Vector3f(22.0f, 0.0f, 33.5f))
+        wall1right.scaleLocal(Vector3f(0.2f))
+        wall2right.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall2right.translateGlobal(Vector3f(22.0f, 0.0f, -60.0f))
+        wall2right.scaleLocal(Vector3f(0.2f))
+        wall3right.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall3right.translateGlobal(Vector3f(22.0f, 0.0f, -153.5f))
+        wall3right.scaleLocal(Vector3f(0.2f))
+        wall4right.rotateAroundPoint(0.0f, Math.toRadians(90.0f), 0.0f, Vector3f(0.0f))
+        wall4right.translateGlobal(Vector3f(22.0f, 0.0f, -247.0f))
+        wall4right.scaleLocal(Vector3f(0.2f))
+
+        //Lantern Translationen
+        lantern1.translateLocal(Vector3f(21.0f, -1.5f, -40.0f))
+        lantern1.scaleLocal(Vector3f(0.1f))
+        lantern1.rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
+        lantern2.translateLocal(Vector3f(21.0f, -1.5f, -85.0f))
+        lantern2.scaleLocal(Vector3f(0.1f))
+        lantern2.rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
+        lantern3.translateLocal(Vector3f(21.0f, -1.5f, -130.0f))
+        lantern3.scaleLocal(Vector3f(0.1f))
+        lantern3.rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
+
+        lantern1left.translateLocal(Vector3f(-21.0f, -1.5f, -40.0f))
+        lantern1left.scaleLocal(Vector3f(0.1f))
+        lantern1left.rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
+        lantern2left.translateLocal(Vector3f(-21.0f, -1.5f, -85.0f))
+        lantern2left.scaleLocal(Vector3f(0.1f))
+        lantern2left.rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
+        lantern3left.translateLocal(Vector3f(-21.0f, -1.5f, -130.0f))
+        lantern3left.scaleLocal(Vector3f(0.1f))
+        lantern3left.rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
 
 
         //Parents
@@ -248,12 +325,14 @@ class Scene(private val window: GameWindow) {
     fun render(dt: Float, t: Float) {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        when (setShader){
+        when (setShader) {
             1 -> usedShader = normalShader
             2 -> usedShader = greyShader
             3 -> usedShader = toonShader
             4 -> usedShader = one_bit_monochrom_Shader
-            else -> {}
+            5 -> usedShader = nightShader
+            else -> {
+            }
         }
 
 
@@ -286,6 +365,19 @@ class Scene(private val window: GameWindow) {
         wall3.render(usedShader)
         wall4.render(usedShader)
 
+        wall1right.render(usedShader)
+        wall2right.render(usedShader)
+        wall3right.render(usedShader)
+        wall4right.render(usedShader)
+
+        lantern1.render(usedShader)
+        lantern2.render(usedShader)
+        lantern3.render(usedShader)
+
+        lantern1left.render(usedShader)
+        lantern2left.render(usedShader)
+        lantern3left.render(usedShader)
+
     }
 
     fun update(dt: Float, t: Float) {
@@ -302,12 +394,20 @@ class Scene(private val window: GameWindow) {
             gateworld[worldID].translateLocal(Vector3f((Math.random() * 15 - Math.random() * 15).toFloat() * 1.5f, 0.0f, -135.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
 
             //Korrektur der Tore Falls sie die Spielwelt zu sehr verlassen würden.
-            if (gateworld[worldID].getWorldPosition().x > 8){
-                gateworld[worldID].translateLocal(Vector3f(-8.0f/0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
+            if (gateworld[worldID].getWorldPosition().x > 8) {
+                gateworld[worldID].translateLocal(Vector3f(-8.0f / 0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
             }
-            if (gateworld[worldID].getWorldPosition().x < -8){
-                gateworld[worldID].translateLocal(Vector3f(8.0f/0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
+            if (gateworld[worldID].getWorldPosition().x < -8) {
+                gateworld[worldID].translateLocal(Vector3f(8.0f / 0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
             }
+
+            lanternworld[worldID].rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
+            lanternworld[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f / 0.1f))
+            lanternworld[worldID].rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
+
+            lanternworldleft[worldID].rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
+            lanternworldleft[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f / 0.1f))
+            lanternworldleft[worldID].rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
 
             worldID += 1
             //println("$worldID")
@@ -318,7 +418,8 @@ class Scene(private val window: GameWindow) {
         if (car.getWorldPosition().z.toInt() % 65 == 0 && wallalreadyloaded == false && car.getWorldPosition().z.toInt() != 0) {
             wallalreadyloaded = true
             wallworld[wallworldID].translateGlobal(Vector3f(0.0f, 0.0f, -280.5f))
-            println("Wand ${wallworldID} wird bewegt nach ${wallworld[wallworldID].getWorldPosition().x}/${wallworld[wallworldID].getWorldPosition().y}/${wallworld[wallworldID].getWorldPosition().z}")
+            wallworldright[wallworldID].translateGlobal(Vector3f(0.0f, 0.0f, -280.5f))
+            println("${camera.getDirection()}")
 
             wallworldID += 1
 
@@ -337,6 +438,8 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
         if (window.getKeyState(GLFW_KEY_W)) {
             //if (gamestart == true) {
+
+
             car.distance += 0.1
             var deg = car.distance % 360
             var degInRad = deg * kotlin.math.PI / 180
@@ -345,12 +448,13 @@ class Scene(private val window: GameWindow) {
              * Some stuff for lane chaning
              * When their is an active lane_change we need to reduce the remaining lane_change by adding it to our movement vector
              */
+
             var path_to_side = 0.0
-            if (remaining_lane_change > 0) {                      //
+            if (remaining_lane_change > 0 && car.getWorldPosition().x < 21.0f) {                      //
                 remaining_lane_change -= 0.05
                 path_to_side += 0.05
             }
-            if (remaining_lane_change < 0) {
+            if (remaining_lane_change < 0 && car.getWorldPosition().x > -21.0f) {
                 remaining_lane_change += 0.05
                 path_to_side -= 0.05
             }
@@ -366,6 +470,7 @@ class Scene(private val window: GameWindow) {
             if (remaining_lane_change <= 0.001 || remaining_lane_change >= -0.001) {
                 is_in_lane_change = false
             }
+
 
         }
 
@@ -402,47 +507,48 @@ class Scene(private val window: GameWindow) {
         }
     }
 
-  fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {
+    fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {
 
-      //Shader wechsel
-      if (window.getKeyState(GLFW_KEY_1)) {
-          when (setShader) {
-              1 -> setShader = 2
-              2 -> setShader = 3
-              3 -> setShader = 4
-              4 -> setShader = 1
-              else -> {
-                  setShader = 1
-              }
-          }
-      }
+        //Shader wechsel
+        if (window.getKeyState(GLFW_KEY_1)) {
+            when (setShader) {
+                1 -> setShader = 2
+                2 -> setShader = 3
+                3 -> setShader = 4
+                4 -> setShader = 5
+                5 -> setShader = 1
+                else -> {
+                    setShader = 1
+                }
+            }
+        }
 
-      //Interaktiver Shader
-      if (window.getKeyState(GLFW_KEY_2)) {
-          when (setBitShaderColour) {
-              1 -> {
-                  setBitShaderColour = 2
-                  usedShader.setUniform("bitcolor", Vector3f(255.0f,255.0f,255.0f),"white")
-              }
-              2 -> {
-                  setBitShaderColour = 3
-                  usedShader.setUniform("bitcolor", Vector3f(255.0f,0.0f,0.0f),"red")
-              }
-              3 -> {
-                  setBitShaderColour = 4
-                  usedShader.setUniform("bitcolor", Vector3f(0.0f,255.0f,0.0f),"green")
-              }
-              4 -> {
-                  setBitShaderColour = 1
-                  usedShader.setUniform("bitcolor", Vector3f(0.0f,0.0f,255.0f),"blue")
-              }
-              else -> {
-                  setShader = 1
-              }
-          }
-      }
+        //Interaktiver Shader
+        if (window.getKeyState(GLFW_KEY_2)) {
+            when (setBitShaderColour) {
+                1 -> {
+                    setBitShaderColour = 2
+                    usedShader.setUniform("bitcolor", Vector3f(255.0f, 0.0f, 0.0f), "red")
+                }
+                2 -> {
+                    setBitShaderColour = 3
+                    usedShader.setUniform("bitcolor", Vector3f(0.0f, 255.0f, 0.0f), "green")
+                }
+                3 -> {
+                    setBitShaderColour = 4
+                    usedShader.setUniform("bitcolor", Vector3f(0.0f, 0.0f, 255.0f), "blue")
+                }
+                4 -> {
+                    setBitShaderColour = 1
+                    usedShader.setUniform("bitcolor", Vector3f(255.0f, 255.0f, 255.0f), "white")
+                }
+                else -> {
+                    setShader = 1
+                }
+            }
+        }
 
-  }
+    }
 
     fun onMouseMove(xpos: Double, ypos: Double) {
         val deltaX: Double = xpos - oldMousePosX
@@ -451,10 +557,12 @@ class Scene(private val window: GameWindow) {
         oldMousePosX = xpos
         oldMousePosY = ypos
 
+
         if (bool) {
             camera.rotateAroundPoint(0.0f, Math.toRadians(deltaX.toFloat() * 0.05f), 0.0f, Vector3f(0.0f))
         }
         bool = true
+
     }
 
     fun cleanup() {}
