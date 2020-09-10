@@ -12,4 +12,8 @@ Dieses CGAAbschlussprojekt befasst sich mit der Implementierung eines Mathelerns
 
 # Featureliste 
 - Endless World
+- Interaktiver 1Bit-Monochrom Shader
+- Grey Shader
+- Toon Shader
+- Night Mode Shader
 - Bremse die nach Gewisser Zeit überhitzt und erst später wieder verwendbar ist
