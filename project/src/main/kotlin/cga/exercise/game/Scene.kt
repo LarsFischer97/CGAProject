@@ -349,8 +349,9 @@ class Scene(private val window: GameWindow) {
 
         car.render(usedShader)
         pointLight.bind(usedShader, "cyclePoint")
+
+        spotLightleft.bind(usedShader, "cycleSpote", camera.getCalculateViewMatrix())
         spotLightright.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
-        spotLightleft.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
 
         car1.render(usedShader)
         //car2.render(usedShader)
@@ -474,7 +475,6 @@ class Scene(private val window: GameWindow) {
 
         }
 
-
         if (window.getKeyState(GLFW_KEY_A)) {
             /**
              * Initiate lane-change
@@ -559,8 +559,15 @@ class Scene(private val window: GameWindow) {
 
 
         if (bool) {
-            camera.rotateAroundPoint(0.0f, Math.toRadians(deltaX.toFloat() * 0.05f), 0.0f, Vector3f(0.0f))
+            println("${camera.getWorldXAxis()}")
+            if (camera.getWorldXAxis().z <= 0.8f && camera.getWorldXAxis().z >= -0.8f) {
+                camera.rotateAroundPoint(0.0f, Math.toRadians(deltaX.toFloat() * 0.05f), 0.0f, Vector3f(0.0f))
+            }
+            else{
+                camera.rotateAroundPoint(0.0f, Math.toRadians(camera.getWorldXAxis().z * 1.05f), 0.0f, Vector3f(0.0f))      //Wenn überschritten wird Camera zurück rotiert
+            }
         }
+
         bool = true
 
     }
