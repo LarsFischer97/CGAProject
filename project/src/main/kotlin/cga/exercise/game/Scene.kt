@@ -38,9 +38,11 @@ class Scene(private val window: GameWindow) {
     private val normalShader: ShaderProgram
     private val greyShader: ShaderProgram
     private val toonShader: ShaderProgram
+    private val one_bit_monochrom_Shader: ShaderProgram
     private var usedShader: ShaderProgram
 
     var setShader: Int = 1
+    var setBitShaderColour = 1
 
     //Meshes
     private var groundmesh: Mesh
@@ -105,6 +107,7 @@ class Scene(private val window: GameWindow) {
         normalShader = ShaderProgram("assets/shaders/normal_vert.glsl", "assets/shaders/normal_frag.glsl")
         greyShader = ShaderProgram("assets/shaders/grey_vert.glsl", "assets/shaders/grey_frag.glsl")
         toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
+        one_bit_monochrom_Shader = ShaderProgram("assets/shaders/1bit_monochrom_vert.glsl", "assets/shaders/1bit_monochrom_frag.glsl")
 
         usedShader = normalShader
 
@@ -249,18 +252,22 @@ class Scene(private val window: GameWindow) {
             1 -> usedShader = normalShader
             2 -> usedShader = greyShader
             3 -> usedShader = toonShader
+            4 -> usedShader = one_bit_monochrom_Shader
             else -> {}
         }
 
 
         usedShader.use()
         usedShader.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
+
         camera.bind(usedShader)
         ground1.render(usedShader)
         ground2.render(usedShader)
         ground3.render(usedShader)
 
-        usedShader.setUniform("sceneColour", Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2))))
+
+        //usedShader.setUniform("sceneColour", Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2))))
+
         car.render(usedShader)
         pointLight.bind(usedShader, "cyclePoint")
         spotLightright.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
@@ -402,12 +409,39 @@ class Scene(private val window: GameWindow) {
           when (setShader) {
               1 -> setShader = 2
               2 -> setShader = 3
-              3 -> setShader = 1
+              3 -> setShader = 4
+              4 -> setShader = 1
               else -> {
                   setShader = 1
               }
           }
       }
+
+      //Interaktiver Shader
+      if (window.getKeyState(GLFW_KEY_2)) {
+          when (setBitShaderColour) {
+              1 -> {
+                  setBitShaderColour = 2
+                  usedShader.setUniform("bitcolor", Vector3f(255.0f,255.0f,255.0f),"white")
+              }
+              2 -> {
+                  setBitShaderColour = 3
+                  usedShader.setUniform("bitcolor", Vector3f(255.0f,0.0f,0.0f),"red")
+              }
+              3 -> {
+                  setBitShaderColour = 4
+                  usedShader.setUniform("bitcolor", Vector3f(0.0f,255.0f,0.0f),"green")
+              }
+              4 -> {
+                  setBitShaderColour = 1
+                  usedShader.setUniform("bitcolor", Vector3f(0.0f,0.0f,255.0f),"blue")
+              }
+              else -> {
+                  setShader = 1
+              }
+          }
+      }
+
   }
 
     fun onMouseMove(xpos: Double, ypos: Double) {

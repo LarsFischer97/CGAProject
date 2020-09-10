@@ -71,6 +71,7 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         return false
     }
 
+
     fun setUniform(name: String, value: Vector2f): Boolean {
         if (programID == 0) return false
         val loc = GL20.glGetUniformLocation(programID, name)
@@ -81,7 +82,7 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         return false
     }
 
-    fun setUniform(name: String, value: Vector3f): Boolean {
+    fun setUniform(name: String, value: Vector3f): Boolean {        //Color
         if (programID == 0) return false
         val loc = GL20.glGetUniformLocation(programID, name)
         if (loc != -1) {
@@ -91,6 +92,25 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         return false
     }
 
+    fun setUniform(name: String, value: Vector3f, colour: String): Boolean {        //Color
+        if (programID == 0) return false
+        val loc = GL20.glGetUniformLocation(programID, name)
+        if (loc != -1) {
+            GL20.glUniform3f(loc, value.x, value.y, value.z)
+            return true
+        }
+        return false
+    }
+
+    fun setUniform(name:String, value: Int, value2: Int): Boolean{
+        if (programID == 0) return false
+        val loc = GL20.glGetUniformLocation(programID, name)
+        if (loc != -1) {
+            GL20.glUniform1i(loc, value)
+            return true
+        }
+        return false
+    }
 
     /**
      * Creates a shader object from vertex and fragment shader paths

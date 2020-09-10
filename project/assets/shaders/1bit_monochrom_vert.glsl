@@ -22,6 +22,7 @@ out struct VertexData
     vec3 normale;
     vec3 toPointLight;
     vec3 toSpotLight;
+    vec3 bitcolor;
 
 } vertexData;
 
@@ -41,6 +42,4 @@ void main(){
     vertexData.position = -pos.xyz;
     vertexData.texture = tc * tcMultiplier;
     vertexData.normale = nor.xyz;
-
-
 }
