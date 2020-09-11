@@ -22,3 +22,9 @@ Steuerung:
 - Toon Shader
 - Night Mode Shader
 - Bremse die nach Gewisser Zeit überhitzt und erst später wieder verwendbar ist
+- Eingeschränkte Kamera Kontrolle
+- Verhindern des Verlassens der Spielwelt
+-
+- Dritt Anbieter Quellen
+- Car Modell - https://www.blendswap.com/blend/25003
+- Texturen - https://www.poliigon.com/
