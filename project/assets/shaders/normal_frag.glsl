@@ -26,6 +26,12 @@ uniform vec3 cycleSpotLightAttParam;
 uniform vec2 cycleSpotLightAngle;
 uniform vec3 cycleSpotLightDir;
 
+uniform vec3 cycleSpot2LightCol;
+uniform vec3 cycleSpot2LightAttParam;
+uniform vec2 cycleSpot2LightAngle;
+uniform vec3 cycleSpot2LightDir;
+
+
 uniform vec3 sceneColour;
 
 

@@ -112,6 +112,7 @@ class Scene(private val window: GameWindow) {
     private var is_in_lane_change = false
     private var remaining_lane_change = 0.0
     private var break_overheat = 0
+    private var speed = -20.0f
 
     //scene loading
 
@@ -350,8 +351,8 @@ class Scene(private val window: GameWindow) {
         car.render(usedShader)
         pointLight.bind(usedShader, "cyclePoint")
 
-        spotLightleft.bind(usedShader, "cycleSpote", camera.getCalculateViewMatrix())
-        spotLightright.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
+        spotLightleft.bind(usedShader, "cycleSpot", camera.getCalculateViewMatrix())
+        spotLightright.bind(usedShader, "rightSpot", camera.getCalculateViewMatrix())
 
         car1.render(usedShader)
         //car2.render(usedShader)
@@ -391,6 +392,31 @@ class Scene(private val window: GameWindow) {
             groundworld[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f))
 
             //Platzierung der Tore mit leichten Random X Faktor
+            var checkgate = car.getWorldPosition().x - gateworld[worldID].getWorldPosition().x - 5.0f
+            println("vorher - Car ${car.getWorldPosition().x}-Gate${gateworld[worldID].getWorldPosition().x} = $checkgate")
+
+
+            //Check Gate Mechanic
+            if (checkgate > -11.0f && checkgate < -4.6f)  {         //linkes tor
+                speed -= 0.5f
+                setBitShaderColour = 1
+                usedShader.setUniform("bitcolor", Vector3f(255.0f, 0.0f, 0.0f), "red")
+            }
+            if (checkgate > -4.5f && checkgate < 2.0f)  {           //mittleres tor
+                speed -= 0.5f
+                setBitShaderColour = 2
+                usedShader.setUniform("bitcolor", Vector3f(0.0f, 255.0f, 0.0f), "green")
+            }
+            if (checkgate > 2.1f && checkgate < 8.6f)  {            //rechtes tor
+                speed -= 0.5f
+                setBitShaderColour = 3
+                usedShader.setUniform("bitcolor", Vector3f(0.0f, 0.0f, 255.0f), "blue")
+            }
+            if (checkgate > 8.7f || checkgate < -11.0f)  {            //neben den toren
+                speed += 1.0f
+                setBitShaderColour = 3
+                usedShader.setUniform("bitcolor", Vector3f(255.0f, 255.0f, 255.0f), "white")
+            }
 
             gateworld[worldID].translateLocal(Vector3f((Math.random() * 15 - Math.random() * 15).toFloat() * 1.5f, 0.0f, -135.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
 
@@ -410,6 +436,13 @@ class Scene(private val window: GameWindow) {
             lanternworldleft[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f / 0.1f))
             lanternworldleft[worldID].rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
 
+//            if (car.getWorldPosition().x > gateworld[worldID].getWorldPosition().x && car.getWorldPosition().x < gateworld[worldID].getWorldPosition().x) {
+//                speed -= 1.0f
+//                println("gate ${gateworld[worldID]}")
+//            }
+
+
+
             worldID += 1
             //println("$worldID")
             if (worldID == groundworld.size) worldID = 0
@@ -420,7 +453,7 @@ class Scene(private val window: GameWindow) {
             wallalreadyloaded = true
             wallworld[wallworldID].translateGlobal(Vector3f(0.0f, 0.0f, -280.5f))
             wallworldright[wallworldID].translateGlobal(Vector3f(0.0f, 0.0f, -280.5f))
-            println("${camera.getDirection()}")
+            //println("${camera.getDirection()}")
 
             wallworldID += 1
 
@@ -464,7 +497,7 @@ class Scene(private val window: GameWindow) {
                 break_overheat -= 1
             }
 
-            car.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, -20.0f * dt))
+            car.translateLocal(Vector3f(path_to_side.toFloat(), 0.0f, speed * dt))
             /**
              * When lane_change is over re-enable chaning the lane
              */
