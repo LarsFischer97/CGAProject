@@ -93,7 +93,7 @@ class Scene(private val window: GameWindow) {
 
     private var camera = TronCamera()
 
-    private var car = ModelLoader.loadModel("assets/models/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
+    private var car = ModelLoader.loadModel("assets/models/car/fixed_car/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
             ?: throw IllegalArgumentException("loading failed")
 
     private var pointLight = Pointlight(Vector3f(), Vector3f())
@@ -185,7 +185,7 @@ class Scene(private val window: GameWindow) {
         ground_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         ground_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
-        gate_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        gate_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)                //Textur trotz Repeat erscheint mir Linear
         gate_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         gate_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
@@ -397,23 +397,23 @@ class Scene(private val window: GameWindow) {
 
 
             //Check Gate Mechanic
-            if (checkgate > -11.0f && checkgate < -4.6f)  {         //linkes tor
+            if (checkgate > -11.0f && checkgate < -4.6f)  {                                                             //linkes tor
                 speed -= 0.5f
                 setBitShaderColour = 1
                 usedShader.setUniform("bitcolor", Vector3f(255.0f, 0.0f, 0.0f), "red")
             }
-            if (checkgate > -4.5f && checkgate < 2.0f)  {           //mittleres tor
+            if (checkgate > -4.5f && checkgate < 2.0f)  {                                                               //mittleres tor
                 speed -= 0.5f
                 setBitShaderColour = 2
                 usedShader.setUniform("bitcolor", Vector3f(0.0f, 255.0f, 0.0f), "green")
             }
-            if (checkgate > 2.1f && checkgate < 8.6f)  {            //rechtes tor
+                if (checkgate > 2.1f && checkgate < 8.6f)  {                                                            //rechtes tor
                 speed -= 0.5f
                 setBitShaderColour = 3
                 usedShader.setUniform("bitcolor", Vector3f(0.0f, 0.0f, 255.0f), "blue")
             }
-            if (checkgate > 8.7f || checkgate < -11.0f)  {            //neben den toren
-                speed += 1.0f
+            if (checkgate > 8.7f || checkgate < -11.0f)  {                                                              //neben den toren
+                if (speed < -10.0f) speed += 1.0f                                                                       //Speed bis auf Minimal 10 verringern können
                 setBitShaderColour = 3
                 usedShader.setUniform("bitcolor", Vector3f(255.0f, 255.0f, 255.0f), "white")
             }
@@ -428,6 +428,7 @@ class Scene(private val window: GameWindow) {
                 gateworld[worldID].translateLocal(Vector3f(8.0f / 0.3f, 0.0f, 0.0f / 0.3f))   //Skalierung bei Translation wieder rausrechnen (/0.3f)
             }
 
+            //Laternen Replatzierung
             lanternworld[worldID].rotateLocal(0.0f,Math.toRadians(90.0f),0.0f)
             lanternworld[worldID].translateLocal(Vector3f(0.0f, 0.0f, -135.0f / 0.1f))
             lanternworld[worldID].rotateLocal(0.0f,Math.toRadians(-90.0f),0.0f)
@@ -468,6 +469,9 @@ class Scene(private val window: GameWindow) {
         if (car.getWorldPosition().z.toInt() % 45 != 0) alreadyloaded = false
         if (car.getWorldPosition().z.toInt() % 65 != 0) wallalreadyloaded = false
 
+        if (window.getKeyState(GLFW_KEY_P)) {
+            //println("${camera.getWorldPosition().sub(getWorldZAxis())}")
+        }
 
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
         if (window.getKeyState(GLFW_KEY_W)) {
