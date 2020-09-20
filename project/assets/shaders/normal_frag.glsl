@@ -68,16 +68,21 @@ vec3 spotLightIntensity(vec3 spotlightcolour, float len, vec3 sp, vec3 spDir){
     float cintensity = clamp(intensity, 0.0f, 1.0f);
 
     return spotlightcolour * cintensity * attenuate(len, cycleSpotLightAttParam);
+
     // return spotlightcolour
 }
 
 void main(){
     vec3 n = normalize(vertexData.normale);
     vec3 v = normalize(vertexData.position);
+
     float lpLength = length(vertexData.toPointLight);
     vec3 lp = vertexData.toPointLight/lpLength;
+
     float spLength = length(vertexData.toSpotLight);
     vec3 sp = vertexData.toSpotLight/spLength;
+
+
     vec3 diffCol = texture(diff, vertexData.texture).rgb;
     vec3 emitCol = texture(emit, vertexData.texture).rgb;
     vec3 specularCol = texture(specular, vertexData.texture).rgb;

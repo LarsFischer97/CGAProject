@@ -10,7 +10,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd ciramic.png
 
 newmtl Engine-black
 Ns 225.000000
@@ -21,7 +20,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd WOOD.JPG
 
 newmtl Glass
 Ns 323.999994
@@ -32,7 +30,6 @@ Ke 0.0 0.0 0.0
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd WOOD.JPG
 
 newmtl Gray
 Ns 4.261008
@@ -43,7 +40,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ciramic.png
 
 newmtl LIght-Oranve
 Ns 323.999994
@@ -54,7 +50,6 @@ Ke 0.0 0.0 0.0
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd black meatl.jpg
 
 newmtl Light-White
 Ns 323.999994
@@ -75,7 +70,6 @@ Ke 0.0 0.0 0.0
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd black meatl.jpg
 
 newmtl Material
 Ns 225.000000
@@ -86,7 +80,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd cloth.jpg
 
 newmtl Metal-Steel
 Ns 638.227156
@@ -97,7 +90,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd cloth.jpg
 
 newmtl Tyre
 Ns 113.590730
@@ -108,7 +100,6 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd cloth.jpg
 
 newmtl Ubody
 Ns 541.743133
@@ -119,5 +110,3 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd cloth.jpg
-map_Bump cloth normal.png

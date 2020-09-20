@@ -61,9 +61,6 @@ class Scene(private val window: GameWindow) {
     private var ground1 = Renderable()
     private var ground2 = Renderable()
     private var ground3 = Renderable()
-    private var car1 = Renderable()
-    private var car2 = Renderable()
-    private var car3 = Renderable()
     private var wall1 = Renderable()
     private var wall2 = Renderable()
     private var wall3 = Renderable()
@@ -88,12 +85,15 @@ class Scene(private val window: GameWindow) {
     private val lanternworldleft = arrayOf(lantern1left,lantern2left,lantern3left)
     private var worldID = 0
     private var wallworldID = 0
-    private val cars = arrayOf(car1, car2, car3)
+    //private val cars = arrayOf(car1, car2, car3)
 
 
     private var camera = TronCamera()
 
     private var car = ModelLoader.loadModel("assets/models/car/fixed_car/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
+            ?: throw IllegalArgumentException("loading failed")
+
+    private var car1 = ModelLoader.loadModel("assets/models/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
             ?: throw IllegalArgumentException("loading failed")
 
     private var pointLight = Pointlight(Vector3f(), Vector3f())
@@ -146,8 +146,8 @@ class Scene(private val window: GameWindow) {
         val vertexAttributes = arrayOf(attrPos, attrTC, attrNorm)
 
         //Gegenverkehr
-        var car1 = ModelLoader.loadModel("assets/models/car2.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
-                ?: throw IllegalArgumentException("loading failed")
+//        var car1 = ModelLoader.loadModel("assets/models/car2.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
+//                ?: throw IllegalArgumentException("loading failed")
 
 //        val res1: OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/car2.obj")
 //        val objMesh1: OBJLoader.OBJMesh = res1.objects[0].meshes[0]
@@ -181,6 +181,14 @@ class Scene(private val window: GameWindow) {
         val gate_diff = Texture2D("assets/textures/gate_diff.jpg", true)
         val gate_spec = Texture2D("assets/textures/gate_spec.jpg", true)
 
+        val wall_emit = Texture2D("assets/textures/wall_emit.jpg", true)
+        val wall_diff = Texture2D("assets/textures/wall_diff.jpg", true)
+        val wall_spec = Texture2D("assets/textures/wall_spec.jpg", true)
+
+        val metall_emit = Texture2D("assets/textures/metall_emit.jpg", true)
+        val metall_diff = Texture2D("assets/textures/metall_diff.jpg", true)
+        val metall_spec = Texture2D("assets/textures/metall_spec.jpg", true)
+
         ground_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         ground_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         ground_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
@@ -189,8 +197,18 @@ class Scene(private val window: GameWindow) {
         gate_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         gate_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
 
+        wall_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        wall_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        wall_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+
+        metall_emit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        metall_diff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        metall_spec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+
         val groundMaterial = Material(ground_diff, ground_emit, ground_spec, 60.0f, Vector2f(8.0f, 8.0f))
         val gateMaterial = Material(gate_diff, gate_emit, gate_spec, 60.0f, Vector2f(8.0f, 8.0f))
+        val wallMaterial = Material(wall_diff, wall_emit, wall_spec, 60.0f, Vector2f(8.0f, 8.0f))
+        val metallMaterial = Material(metall_diff, metall_emit, metall_spec, 80.0f, Vector2f(8.0f, 8.0f))
 //        val carMaterial = Material(texture_diff, texture_emit, texture_spec, 100.0f, Vector2f(8.0f, 8.0f))
 
         //Carmesh
@@ -212,25 +230,25 @@ class Scene(private val window: GameWindow) {
         gate3.list.add(gatemesh)
 
         //Wall
-        wallmesh = Mesh(objMesh4.vertexData, objMesh4.indexData, vertexAttributes, groundMaterial)
+        wallmesh = Mesh(objMesh4.vertexData, objMesh4.indexData, vertexAttributes, wallMaterial)
         wall1.list.add(wallmesh)
         wall2.list.add(wallmesh)
         wall3.list.add(wallmesh)
         wall4.list.add(wallmesh)
 
-        wallmeshright = Mesh(objMesh5.vertexData, objMesh5.indexData, vertexAttributes, groundMaterial)
+        wallmeshright = Mesh(objMesh5.vertexData, objMesh5.indexData, vertexAttributes, wallMaterial)
         wall1right.list.add(wallmeshright)
         wall2right.list.add(wallmeshright)
         wall3right.list.add(wallmeshright)
         wall4right.list.add(wallmeshright)
 
         //Lantern
-        lanternmesh = Mesh(objMesh6.vertexData, objMesh6.indexData, vertexAttributes, groundMaterial)
+        lanternmesh = Mesh(objMesh6.vertexData, objMesh6.indexData, vertexAttributes, metallMaterial)
         lantern1.list.add(lanternmesh)
         lantern2.list.add(lanternmesh)
         lantern3.list.add(lanternmesh)
 
-        lanternmeshleft = Mesh(objMesh7.vertexData, objMesh7.indexData, vertexAttributes, groundMaterial)
+        lanternmeshleft = Mesh(objMesh7.vertexData, objMesh7.indexData, vertexAttributes, metallMaterial)
         lantern1left.list.add(lanternmeshleft)
         lantern2left.list.add(lanternmeshleft)
         lantern3left.list.add(lanternmeshleft)
@@ -243,6 +261,7 @@ class Scene(private val window: GameWindow) {
 
         //Transformations
         car.scaleLocal(Vector3f(0.8f))
+        car1.scaleLocal(Vector3f(0.6f))
 
         camera.rotateLocal(Math.toRadians(-25.0f), 0.0f, 0.0f)
         camera.translateLocal(Vector3f(0.0f, 0.5f, 4.0f))
@@ -320,6 +339,7 @@ class Scene(private val window: GameWindow) {
         spotLightleft.parent = car
         spotLightright.parent = car
         camera.parent = car
+        car1.parent = car
 
     }
 
@@ -383,7 +403,7 @@ class Scene(private val window: GameWindow) {
     }
 
     fun update(dt: Float, t: Float) {
-        pointLight.lightCol = Vector3f(abs(sin(t / 1)), abs(sin(t / 3)), abs(sin(t / 2)))
+        pointLight.lightCol = Vector3f(1.0f,1.0f,1.0f)
 
 
         //Unendlicher Ground und Gates
@@ -474,8 +494,8 @@ class Scene(private val window: GameWindow) {
         }
 
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
-        if (window.getKeyState(GLFW_KEY_W)) {
-            //if (gamestart == true) {
+        //if (window.getKeyState(GLFW_KEY_W)) {
+            if (gamestart == true) {
 
 
             car.distance += 0.1
@@ -583,6 +603,14 @@ class Scene(private val window: GameWindow) {
                     setShader = 1
                 }
             }
+        }
+
+        if (window.getKeyState(GLFW_KEY_X)) {
+            car1.rotateLocal(0.0f,Math.toRadians(180.0f),0.0f)
+        }
+
+        if (window.getKeyState(GLFW_KEY_Y)) {
+
         }
 
     }

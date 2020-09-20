@@ -81,7 +81,7 @@ void main(){
 
     //emissive Term
     vec3 result = emitCol * sceneColour;
-    vec3 comparevec = vec3(127.5,127.5,127.5);
+    vec3 comparevec = vec3(0.55,0.55,0.55);
     vec3 black = vec3(0.0,0.0,0.0);
     vec3 white = vec3(255.0,255.0,255.0);
 
@@ -90,7 +90,7 @@ void main(){
     result += shade(n, sp, v, diffCol, specularCol, shininess) * spotLightIntensity(cycleSpotLightCol, spLength, sp, cycleSpotLightDir);
 
 
-    if ((result.x+result.y+result.z) < (comparevec.x+comparevec.y+comparevec.z)){
+    if ((result.x+result.y+result.z) > (comparevec.x+comparevec.y+comparevec.z)){
 
         if (black == bitcolor){
             color = vec4(white , 1.0);
