@@ -89,6 +89,8 @@ class Scene(private val window: GameWindow) {
 
 
     private var camera = TronCamera()
+    private var camera2 = TronCamera()
+    private var camerastate = true
 
     private var car = ModelLoader.loadModel("assets/models/car/fixed_car/car.obj", Math.toRadians(0.0f), Math.toRadians(180.0f), Math.toRadians(0.0f))
             ?: throw IllegalArgumentException("loading failed")
@@ -265,6 +267,11 @@ class Scene(private val window: GameWindow) {
 
         camera.rotateLocal(Math.toRadians(-25.0f), 0.0f, 0.0f)
         camera.translateLocal(Vector3f(0.0f, 0.5f, 4.0f))
+
+
+        camera2.rotateLocal(Math.toRadians(-35.0f), 0.0f, 0.0f)
+        camera2.translateLocal(Vector3f(0.0f, 0.5f, 14.0f))
+
         pointLight.translateLocal(Vector3f(0.0f, 4.0f, 0.0f))
         spotLightleft.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
         spotLightright.rotateLocal(Math.toRadians(-10.0f), Math.PI.toFloat(), 0.0f)
@@ -339,6 +346,7 @@ class Scene(private val window: GameWindow) {
         spotLightleft.parent = car
         spotLightright.parent = car
         camera.parent = car
+        camera2.parent = car
         car1.parent = car
 
     }
@@ -360,7 +368,9 @@ class Scene(private val window: GameWindow) {
         usedShader.use()
         usedShader.setUniform("sceneColour", Vector3f(1.0f, 1.0f, 1.0f))
 
+        camera2.bind(usedShader)
         camera.bind(usedShader)
+
         ground1.render(usedShader)
         ground2.render(usedShader)
         ground3.render(usedShader)
@@ -489,8 +499,8 @@ class Scene(private val window: GameWindow) {
         if (car.getWorldPosition().z.toInt() % 45 != 0) alreadyloaded = false
         if (car.getWorldPosition().z.toInt() % 65 != 0) wallalreadyloaded = false
 
-        if (window.getKeyState(GLFW_KEY_P)) {
-            //println("${camera.getWorldPosition().sub(getWorldZAxis())}")
+        if (window.getKeyState(GLFW_KEY_V)) {
+            camera2.bind(usedShader)
         }
 
         if (window.getKeyState(GLFW_KEY_W)) gamestart = true
@@ -609,8 +619,16 @@ class Scene(private val window: GameWindow) {
             car1.rotateLocal(0.0f,Math.toRadians(180.0f),0.0f)
         }
 
-        if (window.getKeyState(GLFW_KEY_Y)) {
-
+        if (window.getKeyState(GLFW_KEY_V)) {
+            if (camerastate == true){
+                camera.bind(usedShader)
+                camerastate == false
+            }
+            else{
+                camera2.bind(usedShader)
+                camerastate == true
+            }
+            camera2.bind(usedShader)
         }
 
     }
