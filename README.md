@@ -1,6 +1,6 @@
 # CGAProject
 
-# Mathe Racing Game
+# Racing Game
 Steuerung:
 
     Spielstart: W 
