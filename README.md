@@ -13,7 +13,7 @@ Steuerung:
     Triffst du kein Tor, verlierst du an Geschwindigkeit! 
     Aktiviere den 1Bit-Monochrom Shader um diesen durch dein Spielen zu beeinflussen!
     
- [Ereignisse/Verworfene Ideen/Notizen](https://github.com/LarsFischer97/CGAProject/wiki)
+ [Wiki - Ereignisse/Verworfene Ideen/Notizen](https://github.com/LarsFischer97/CGAProject/wiki)
 
 # Teammitglieder
 - Lars Fischer
