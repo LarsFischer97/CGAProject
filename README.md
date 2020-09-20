@@ -12,9 +12,7 @@ Steuerung:
     Fahre durch die Tore um Geschwindigkeit aufzubauen. Triffst du kein Tor, verlierst du an Geschwindigkeit! 
     Aktiviere den 1Bit-Monochrom Shader um diesen durch dein Spielen zu beeinflussen!
     
- [Notes](https://github.com/LarsFischer97/CGAProject/wiki)
- 
- [Grobe Projektplanung (Trello)](https://trello.com/b/7UkmTYPH/cga-game)
+ [Ereignisse/Verworfene Ideen/Notizen](https://github.com/LarsFischer97/CGAProject/wiki)
 
 # Teammitglieder
 - Lars Fischer
@@ -25,6 +23,7 @@ Steuerung:
 - Grey Shader
 - Toon Shader
 - Night Mode Shader
+- Fremde und eigene Modelle darstellen
 - Bremse die nach Gewisser Zeit überhitzt und erst später wieder verwendbar ist
 - Eingeschränkte Kamera Kontrolle
 - Verhindern des Verlassens der Spielwelt
