@@ -9,7 +9,8 @@ Steuerung:
     Shaderdurchwahl: 1
     Monochromshadercontrolle: 2
     
-    Fahre durch die Tore um Geschwindigkeit aufzubauen. Triffst du kein Tor, verlierst du an Geschwindigkeit! 
+    Fahre durch die Tore um Geschwindigkeit aufzubauen. 
+    Triffst du kein Tor, verlierst du an Geschwindigkeit! 
     Aktiviere den 1Bit-Monochrom Shader um diesen durch dein Spielen zu beeinflussen!
     
  [Ereignisse/Verworfene Ideen/Notizen](https://github.com/LarsFischer97/CGAProject/wiki)
